@@ -333,8 +333,21 @@
                                             <TextBox Grid.Column="1" Margin="10,0,10,0" VerticalAlignment="Center"
                                                      Text="{Binding Path=Text, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                                         </Grid>
-                                        <ListBox Name="ListRfidTags" Grid.Row="5" ItemsSource="{Binding RfidTags}" FontFamily="Consolas" Margin="0,0,352,0"/>
-                                        <ListBox Name="ListRfidTagsStable" Grid.Row="5" ItemsSource="{Binding StableTags}" FontFamily="Consolas" Margin="268,0,36,0"/>
+
+                                        <Grid Grid.Row="5">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="20"/>
+                                                <RowDefinition Height="*"/>
+                                            </Grid.RowDefinitions>
+                                            <TextBlock Text="Accumulated" Grid.Column="0" Grid.Row="0" HorizontalAlignment="Center"></TextBlock>
+                                            <TextBlock Text="Scan Cycle" Grid.Column="1"  Grid.Row="0" HorizontalAlignment="Center" Name="TextBlockScanned"></TextBlock>
+                                            <ListBox Name="ListRfidTags" Grid.Column="0"  Grid.Row="1" ItemsSource="{Binding AccTags}" FontFamily="Consolas" />
+                                            <ListBox Name="ListRfidTagsStable" Grid.Column="1" Grid.Row="1" ItemsSource="{Binding StableTags}" FontFamily="Consolas" />
+                                        </Grid>
                                     </Grid>
                                 </Grid>
                             </TabItem>

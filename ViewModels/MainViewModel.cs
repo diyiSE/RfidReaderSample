@@ -336,12 +336,13 @@ namespace unitechRFIDSample.ViewModels
         public MainWindow mainWindow;
 
         //<Timmy> bind list box for found tags
-        public ObservableCollection<string> RfidTags { get; set; } = new ObservableCollection<string>();
-        //public ObservableCollection<string> RfidTags  =
-        //    new ObservableCollection<string>();
+        public ObservableCollection<string> AccTags { get; set; } = new ObservableCollection<string>();
+        //累計的tags
         //public List<string> RfidTags { get; set; } = new List<string>();
 
         public ObservableCollection<string> StableTags { get; set; } = new ObservableCollection<string>();
+        //在一次盤點(掃描)流程中找到的Tags
+        int InventoryTagsCount = 0;
 
         public string ConnectPath { get; set; }
         //::<timmy> PS.在XAML中TextBox等UI元件bind屬性 
@@ -580,8 +581,8 @@ namespace unitechRFIDSample.ViewModels
             else if (param.Equals("Clear"))
             {
                 //<timmy>
-                RfidTags.Clear();
-                mainWindow.ButtonClear.Content = "Clear Result " + RfidTags.Count().ToString();
+                AccTags.Clear();
+                mainWindow.ButtonClear.Content = "Clear Result " + AccTags.Count().ToString();
             }
         }
 
@@ -1569,6 +1570,8 @@ namespace unitechRFIDSample.ViewModels
                     Application.Current.Dispatcher.Invoke(() =>
                     {
                         StableTags.Add("Stop " + DateTime.Now);
+                        //StableTags.Add("Found " + InventoryTagsCount + " tags");
+                        mainWindow.TextBlockScanned.Text = "Scan Cycle: Found " + InventoryTagsCount + " tags";
                     });
                 }
                 else 
@@ -1576,8 +1579,10 @@ namespace unitechRFIDSample.ViewModels
                     //invetory -> stop:  代表開始掃描                    
                     Application.Current.Dispatcher.Invoke(() =>
                     {
+                        InventoryTagsCount = 0;
                         StableTags.Clear();
                         StableTags.Add("Invetory " + DateTime.Now);
+                        mainWindow.TextBlockScanned.Text = "Scan Cycle: Finding";
                     });
 
                 }
@@ -1728,32 +1733,30 @@ namespace unitechRFIDSample.ViewModels
                             Application.Current.Dispatcher.Invoke(() =>
                             {
                                 StableTags.Add(EPC);
-                            });                            
+                                InventoryTagsCount++;
+                            });
                         }
 
                         //Console.WriteLine("count:" + mainWindow.lstTags.Items.Count);
                         //if(mainWindow.ListRfidTags.Items.Count < 20)
-                        if (RfidTags.Count < 20)
+                        if (AccTags.Count < 50)
                         {
                             //string temp = mainWindow.ListRfidTags.Items.Count + ": " + EPC;
-                            //string temp = RfidTags.Count + ": " + EPC;
-                            //Console.WriteLine(temp);                            
-                            if (!RfidTags.Contains(EPC))
+                            //string temp = RfidTags.Count + ": " + EPC;                                              
+                            if (!AccTags.Contains(EPC))
                             {
                                 //<timmy> 不同執行緒不可直接變更UI; mainWindow UI物件應bind ViewModel屬性用Invoke變更
                                 Application.Current.Dispatcher.Invoke(() =>
                                 {
-                                    RfidTags.Add(EPC);
-                                    //RfidTags.Add("test" + DateTime.Now);                                
+                                    AccTags.Add(EPC);
+                                    //RfidTags.Add("test" + DateTime.Now);
                                     //mainWindow.ListRfidTags.Items.Add(EPC);
                                     //mainWindow.lstTags.Items.Refresh();
-                                    mainWindow.ButtonClear.Content = "Clear Result " + RfidTags.Count().ToString();
-
+                                    mainWindow.ButtonClear.Content = "Clear Result " + AccTags.Count().ToString();
                                     //RfidTags.OrderByDescending(x => x);
-                                    //StableTags = RfidTags;                                   
-
+                                    //StableTags = RfidTags;
                                 });
-                            }                            
+                            }
                         }
                     }
                 }
