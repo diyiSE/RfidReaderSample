@@ -333,7 +333,8 @@
                                             <TextBox Grid.Column="1" Margin="10,0,10,0" VerticalAlignment="Center"
                                                      Text="{Binding Path=Text, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                                         </Grid>
-                                        <ListBox Name="ListRfidTags" Grid.Row="10" ItemsSource="{Binding RfidTags}" FontFamily="Consolas"/>
+                                        <ListBox Name="ListRfidTags" Grid.Row="5" ItemsSource="{Binding RfidTags}" FontFamily="Consolas" Margin="0,0,352,0"/>
+                                        <ListBox Name="ListRfidTagsStable" Grid.Row="5" ItemsSource="{Binding StableTags}" FontFamily="Consolas" Margin="268,0,36,0"/>
                                     </Grid>
                                 </Grid>
                             </TabItem>

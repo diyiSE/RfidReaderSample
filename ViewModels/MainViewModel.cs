@@ -341,6 +341,8 @@ namespace unitechRFIDSample.ViewModels
         //    new ObservableCollection<string>();
         //public List<string> RfidTags { get; set; } = new List<string>();
 
+        public ObservableCollection<string> StableTags { get; set; } = new ObservableCollection<string>();
+
         public string ConnectPath { get; set; }
         //::<timmy> PS.在XAML中TextBox等UI元件bind屬性 
 
@@ -1551,10 +1553,37 @@ namespace unitechRFIDSample.ViewModels
         #endregion
 
         #region Event Functions
+        string InventoryTextLast;
         private void OnActionStateChanged(object sender, ActionStateEventArgs e)
         {
             InventoryText = e.ActionState == ActionState.Stop ? IConstValue.Inventory : IConstValue.Stop;
             _isOnInventory = e.ActionState == ActionState.Stop ? false : true;
+
+            //<timmy>
+            if(InventoryTextLast != InventoryText)
+            {
+                //changed 
+                if (InventoryText == IConstValue.Inventory)
+                {
+                    //stop => invetory: 代表停止掃描
+                    Application.Current.Dispatcher.Invoke(() =>
+                    {
+                        StableTags.Add("Stop " + DateTime.Now);
+                    });
+                }
+                else 
+                {
+                    //invetory -> stop:  代表開始掃描                    
+                    Application.Current.Dispatcher.Invoke(() =>
+                    {
+                        StableTags.Clear();
+                        StableTags.Add("Invetory " + DateTime.Now);
+                    });
+
+                }
+            }
+            InventoryTextLast = InventoryText;
+
 
             ActionStateText = e.ActionState.ToString();
 
@@ -1694,6 +1723,14 @@ namespace unitechRFIDSample.ViewModels
                 {
                     //if(mainWindow != null)
                     {
+                        if(!StableTags.Contains(EPC))
+                        {
+                            Application.Current.Dispatcher.Invoke(() =>
+                            {
+                                StableTags.Add(EPC);
+                            });                            
+                        }
+
                         //Console.WriteLine("count:" + mainWindow.lstTags.Items.Count);
                         //if(mainWindow.ListRfidTags.Items.Count < 20)
                         if (RfidTags.Count < 20)
@@ -1711,6 +1748,10 @@ namespace unitechRFIDSample.ViewModels
                                     //mainWindow.ListRfidTags.Items.Add(EPC);
                                     //mainWindow.lstTags.Items.Refresh();
                                     mainWindow.ButtonClear.Content = "Clear Result " + RfidTags.Count().ToString();
+
+                                    //RfidTags.OrderByDescending(x => x);
+                                    //StableTags = RfidTags;                                   
+
                                 });
                             }                            
                         }
