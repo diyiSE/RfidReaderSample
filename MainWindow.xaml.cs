@@ -36,8 +36,15 @@ namespace unitechRFIDSample
         public MainWindow()
         {
             InitializeComponent();
-
+            
+            //<timmy> sets title wtih version
+            this.Title += " (1.0.13*)";
+            
             DataContext = new MainViewModel();
+            
+            //<timmy> try to set UI objects
+            ((MainViewModel)DataContext).mainWindow = this;
+            //PresetListItems();
         }
 
         private void NumberChecker(object sender, TextCompositionEventArgs e)
@@ -55,5 +62,22 @@ namespace unitechRFIDSample
         {
             ((MainViewModel)DataContext).Dispose();
         }
+
+
+        void PresetListItems()
+        {
+            //<timmy>
+            ListRfidTags.Items.Clear();
+            //lstTags.Items.Add(new ListItem("123"));
+            ListRfidTags.Items.Add("test1");
+            //ListRfidTags.Items.Add("2");
+            //ListRfidTags.Items.Add("3");
+        }
+
+        //public void AddItem(string text)
+        //{
+        //    RfidTags.Items.Add(text);
+        //}
+
     }
 }

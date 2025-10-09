@@ -34,6 +34,7 @@ namespace unitechRFIDSample.ViewModels
         public List<ItemCollection> ConnectionTypes { get; set; }
         public ItemCollection SelectedConnectionType { get; set; }
 
+
         private int _connectionTypeIndex;
         public int SelectedConnectionTypeIndex
         {
@@ -330,7 +331,18 @@ namespace unitechRFIDSample.ViewModels
         public string KillPassword { get; set; }
         #endregion
 
+
+        //<timmy> for UI control (但這不符合WPF MVVM原則)
+        public MainWindow mainWindow;
+
+        //<Timmy> bind list box for found tags
+        public ObservableCollection<string> RfidTags { get; set; } = new ObservableCollection<string>();
+        //public ObservableCollection<string> RfidTags  =
+        //    new ObservableCollection<string>();
+        //public List<string> RfidTags { get; set; } = new List<string>();
+
         public string ConnectPath { get; set; }
+        //::<timmy> PS.在XAML中TextBox等UI元件bind屬性 
 
         private bool _isConnected;
         public bool IsConnected
@@ -415,6 +427,9 @@ namespace unitechRFIDSample.ViewModels
             ConnectText = IConstValue.Connect;
             InventoryText = IConstValue.Inventory;
 
+            //::set default COM <timmy>
+            ConnectPath = "COM3";
+
             ConnectionTypes = new List<ItemCollection>();
             ConnectionTypes.Add(new ItemCollection(IConstValue.Serial));
             ConnectionTypes.Add(new ItemCollection(IConstValue.Bluetooth));
@@ -459,6 +474,10 @@ namespace unitechRFIDSample.ViewModels
             AccessPassword = IConstValue.DefaultPassword;
             LockPassword = IConstValue.DefaultPassword;
             KillPassword = IConstValue.DefaultPassword;
+
+            //<timmy>
+            //RfidTags = new ObservableCollection<string>();
+            //RfidTags.Add("Start test" + DateTime.Now);
 
             NotifyPropertyChanged(nameof(Offset));
             NotifyPropertyChanged(nameof(Length));
@@ -556,6 +575,12 @@ namespace unitechRFIDSample.ViewModels
             else if (param.Equals(IConstValue.Lock)) { OnLock(); }
             else if (param.Equals(IConstValue.Kill)) { OnKill(); }
             else if (param.Equals(IConstValue.Find)) { OnFind(); }
+            else if (param.Equals("Clear"))
+            {
+                //<timmy>
+                RfidTags.Clear();
+                mainWindow.ButtonClear.Content = "Clear Result " + RfidTags.Count().ToString();
+            }
         }
 
         private void OnConnect()
@@ -1660,10 +1685,51 @@ namespace unitechRFIDSample.ViewModels
                     break;
             }
 
+
+            #region list box for tags
+            //<timmy>
+            if (EPC != null)
+            {
+                try
+                {
+                    //if(mainWindow != null)
+                    {
+                        //Console.WriteLine("count:" + mainWindow.lstTags.Items.Count);
+                        //if(mainWindow.ListRfidTags.Items.Count < 20)
+                        if (RfidTags.Count < 20)
+                        {
+                            //string temp = mainWindow.ListRfidTags.Items.Count + ": " + EPC;
+                            //string temp = RfidTags.Count + ": " + EPC;
+                            //Console.WriteLine(temp);                            
+                            if (!RfidTags.Contains(EPC))
+                            {
+                                //<timmy> 不同執行緒不可直接變更UI; mainWindow UI物件應bind ViewModel屬性用Invoke變更
+                                Application.Current.Dispatcher.Invoke(() =>
+                                {
+                                    RfidTags.Add(EPC);
+                                    //RfidTags.Add("test" + DateTime.Now);                                
+                                    //mainWindow.ListRfidTags.Items.Add(EPC);
+                                    //mainWindow.lstTags.Items.Refresh();
+                                    mainWindow.ButtonClear.Content = "Clear Result " + RfidTags.Count().ToString();
+                                });
+                            }                            
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.ToString());
+                }
+                             
+            }
+            #endregion            
             NotifyPropertyChanged(nameof(EPC));
             NotifyPropertyChanged(nameof(TID));
             NotifyPropertyChanged(nameof(RSSI));
             NotifyPropertyChanged(nameof(AntennaID));
+            
+            //<timmy>
+            //NotifyPropertyChanged(nameof(RfidTags));
         }
 
         private void OnProgressRateEvent(object sender, double e)
