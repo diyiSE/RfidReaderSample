@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "unitechRFIDSample": {
+      "commandName": "Project",
+      "nativeDebugging": false
+    }
+  }
+}
