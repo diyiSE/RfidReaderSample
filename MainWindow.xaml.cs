@@ -36,10 +36,10 @@ namespace unitechRFIDSample
         public MainWindow()
         {
             InitializeComponent();
-            
+
             //<timmy> sets title wtih version
-            this.Title += " (1.0.13*)";
-            
+            this.Title += " 1.0.13 Rev" + VersionTag.Rev;
+
             DataContext = new MainViewModel();
             
             //<timmy> try to set UI objects

@@ -343,7 +343,7 @@
                                                 <RowDefinition Height="20"/>
                                                 <RowDefinition Height="*"/>
                                             </Grid.RowDefinitions>
-                                            <TextBlock Text="Accumulated" Grid.Column="0" Grid.Row="0" HorizontalAlignment="Center"></TextBlock>
+                                            <TextBlock Text="Accumulated" Grid.Column="0" Grid.Row="0" HorizontalAlignment="Center" Name="TextBlockAccumlated"></TextBlock>
                                             <TextBlock Text="Scan Cycle" Grid.Column="1"  Grid.Row="0" HorizontalAlignment="Center" Name="TextBlockScanned"></TextBlock>
                                             <ListBox Name="ListRfidTags" Grid.Column="0"  Grid.Row="1" ItemsSource="{Binding AccTags}" FontFamily="Consolas" />
                                             <ListBox Name="ListRfidTagsStable" Grid.Column="1" Grid.Row="1" ItemsSource="{Binding StableTags}" FontFamily="Consolas" />

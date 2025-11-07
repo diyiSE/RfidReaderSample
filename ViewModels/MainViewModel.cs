@@ -581,8 +581,9 @@ namespace unitechRFIDSample.ViewModels
             else if (param.Equals("Clear"))
             {
                 //<timmy>
-                AccTags.Clear();
-                mainWindow.ButtonClear.Content = "Clear Result " + AccTags.Count().ToString();
+                AccTags.Clear();                
+                mainWindow.TextBlockAccumlated.Text = "累計: " + AccTags.Count().ToString();
+                //mainWindow.ButtonClear.Content = "Clear Result " + AccTags.Count().ToString();
             }
         }
 
@@ -1569,9 +1570,9 @@ namespace unitechRFIDSample.ViewModels
                     //stop => invetory: 代表停止掃描
                     Application.Current.Dispatcher.Invoke(() =>
                     {
-                        StableTags.Add("Stop " + DateTime.Now);
+                        StableTags.Add("停止掃描 " + DateTime.Now);
                         //StableTags.Add("Found " + InventoryTagsCount + " tags");
-                        mainWindow.TextBlockScanned.Text = "Scan Cycle: Found " + InventoryTagsCount + " tags";
+                        mainWindow.TextBlockScanned.Text = "掃描周期: 找到 " + InventoryTagsCount + " tags";
                     });
                 }
                 else 
@@ -1581,8 +1582,8 @@ namespace unitechRFIDSample.ViewModels
                     {
                         InventoryTagsCount = 0;
                         StableTags.Clear();
-                        StableTags.Add("Invetory " + DateTime.Now);
-                        mainWindow.TextBlockScanned.Text = "Scan Cycle: Finding";
+                        StableTags.Add("盤點讀取開始 " + DateTime.Now);
+                        mainWindow.TextBlockScanned.Text = "掃描周期: Finding";
                     });
 
                 }
@@ -1752,7 +1753,10 @@ namespace unitechRFIDSample.ViewModels
                                     //RfidTags.Add("test" + DateTime.Now);
                                     //mainWindow.ListRfidTags.Items.Add(EPC);
                                     //mainWindow.lstTags.Items.Refresh();
-                                    mainWindow.ButtonClear.Content = "Clear Result " + AccTags.Count().ToString();
+                                    
+                                    mainWindow.TextBlockAccumlated.Text = "累計: " + AccTags.Count().ToString();
+                                    //mainWindow.ButtonClear.Content = "Clear Result " + AccTags.Count().ToString();
+
                                     //RfidTags.OrderByDescending(x => x);
                                     //StableTags = RfidTags;
                                 });
