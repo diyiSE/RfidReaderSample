@@ -265,7 +265,7 @@
                                             </Button.Content>
                                         </Button>
                                         <Button Grid.Row="4" Style="{StaticResource operationButton}" Content="Display" CommandParameter="Display" IsEnabled="{Binding DisplayEnabled}"/>
-                                        <Button Grid.Row="5" Style="{StaticResource operationButton}" Content="Clear Result" CommandParameter="Clear" IsEnabled="{Binding DisplayEnabled}" Name="ButtonClear"/>
+                                        <Button Grid.Row="5" Style="{StaticResource operationButton}" Content="清除結果" CommandParameter="Clear" IsEnabled="{Binding DisplayEnabled}" Name="ButtonClear"/>
                                     </Grid>
 
                                     <Grid Grid.Column="1">
@@ -343,10 +343,10 @@
                                                 <RowDefinition Height="20"/>
                                                 <RowDefinition Height="*"/>
                                             </Grid.RowDefinitions>
-                                            <TextBlock Text="Accumulated" Grid.Column="0" Grid.Row="0" HorizontalAlignment="Center" Name="TextBlockAccumlated"></TextBlock>
-                                            <TextBlock Text="Scan Cycle" Grid.Column="1"  Grid.Row="0" HorizontalAlignment="Center" Name="TextBlockScanned"></TextBlock>
+                                            <TextBlock Text="累計找到的Tags" Grid.Column="0" Grid.Row="0" HorizontalAlignment="Center" Name="TextBlockAccumlated"></TextBlock>
+                                            <TextBlock Text="讀取週期找到的Tags" Grid.Column="1"  Grid.Row="0" HorizontalAlignment="Center" Name="TextBlockScanned"></TextBlock>
                                             <ListBox Name="ListRfidTags" Grid.Column="0"  Grid.Row="1" ItemsSource="{Binding AccTags}" FontFamily="Consolas" />
-                                            <ListBox Name="ListRfidTagsStable" Grid.Column="1" Grid.Row="1" ItemsSource="{Binding StableTags}" FontFamily="Consolas" />
+                                            <ListBox Name="ListRfidTagsStable" Grid.Column="1" Grid.Row="1" ItemsSource="{Binding CycleTags}" FontFamily="Consolas" />
                                         </Grid>
                                     </Grid>
                                 </Grid>

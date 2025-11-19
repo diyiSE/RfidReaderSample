@@ -340,7 +340,7 @@ namespace unitechRFIDSample.ViewModels
         //累計的tags
         //public List<string> RfidTags { get; set; } = new List<string>();
 
-        public ObservableCollection<string> StableTags { get; set; } = new ObservableCollection<string>();
+        public ObservableCollection<string> CycleTags { get; set; } = new ObservableCollection<string>();
         //在一次盤點(掃描)流程中找到的Tags
         int InventoryTagsCount = 0;
 
@@ -536,10 +536,10 @@ namespace unitechRFIDSample.ViewModels
             {
                 RFIDConfig rfidConfig = new RFIDConfig()
                 {
-                    ContinuousMode = true,
+                    ContinuousMode = false, //true,
                     Power = 24,
-                    Algorithm = AlgorithmType.DynamicQ,
-                    StartQ = 4,
+                    Algorithm = AlgorithmType.FixedQ, //.DynamicQ,
+                    StartQ =  4, //4,
                     MinQ = 0,
                     MaxQ = 15,
                     Session = Session.S0,
@@ -583,7 +583,10 @@ namespace unitechRFIDSample.ViewModels
                 //<timmy>
                 AccTags.Clear();                
                 mainWindow.TextBlockAccumlated.Text = "累計: " + AccTags.Count().ToString();
-                //mainWindow.ButtonClear.Content = "Clear Result " + AccTags.Count().ToString();
+                //mainWindow.ButtonClear.Content = "Clear Result " + AccTags.Count().ToString();                
+                CycleTags.Clear();
+                InventoryTagsCount = 0;
+                mainWindow.TextBlockScanned.Text = "掃描周期: 找到 " + InventoryTagsCount + " tags";
             }
         }
 
@@ -1570,7 +1573,7 @@ namespace unitechRFIDSample.ViewModels
                     //stop => invetory: 代表停止掃描
                     Application.Current.Dispatcher.Invoke(() =>
                     {
-                        StableTags.Add("停止掃描 " + DateTime.Now);
+                        CycleTags.Add("停止掃描 " + DateTime.Now);
                         //StableTags.Add("Found " + InventoryTagsCount + " tags");
                         mainWindow.TextBlockScanned.Text = "掃描周期: 找到 " + InventoryTagsCount + " tags";
                     });
@@ -1581,8 +1584,8 @@ namespace unitechRFIDSample.ViewModels
                     Application.Current.Dispatcher.Invoke(() =>
                     {
                         InventoryTagsCount = 0;
-                        StableTags.Clear();
-                        StableTags.Add("盤點讀取開始 " + DateTime.Now);
+                        CycleTags.Clear();
+                        CycleTags.Add("盤點讀取開始 " + DateTime.Now);
                         mainWindow.TextBlockScanned.Text = "掃描周期: Finding";
                     });
 
@@ -1729,11 +1732,11 @@ namespace unitechRFIDSample.ViewModels
                 {
                     //if(mainWindow != null)
                     {
-                        if(!StableTags.Contains(EPC))
+                        if (!CycleTags.Contains(EPC))
                         {
                             Application.Current.Dispatcher.Invoke(() =>
                             {
-                                StableTags.Add(EPC);
+                                CycleTags.Add(EPC);
                                 InventoryTagsCount++;
                             });
                         }

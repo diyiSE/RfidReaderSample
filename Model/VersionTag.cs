@@ -7,6 +7,6 @@ using System.Threading.Tasks;
 
 class VersionTag
 {
-    public static string Rev = "2025-11-07*";
+    public static string Rev = "2025-11-19*";
 }
 
