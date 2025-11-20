@@ -534,12 +534,30 @@ namespace unitechRFIDSample.ViewModels
         {
             if (_reader != null && _reader.BaseUHF != null)
             {
-                RFIDConfig rfidConfig = new RFIDConfig()
+                //<timmy> Different parameter profile for BT|USB
+                //<timmy> USB COM: 用較慢較穩的方法
+                RFIDConfig rfidConfigUSB = new RFIDConfig()
                 {
                     ContinuousMode = false, //true,
                     Power = 24,
-                    Algorithm = AlgorithmType.FixedQ, //.DynamicQ,
+                    Algorithm = AlgorithmType.DynamicQ, //.DynamicQ, FixedQ
                     StartQ =  4, //4,
+                    MinQ = 0,
+                    MaxQ = 15,
+                    Session = Session.S0,
+                    Encoding = unitechRFID.Encoding.FM0,
+                    Target = Target.A,
+                    InventoryTime = 500, //400, //200 , //1500
+                    IdleTime = 0
+                };
+
+                //<timmy> Bluetooth: 用較快的讀取法(連續模式), 原本sample code的預設 
+                RFIDConfig rfidConfigBluetooth = new RFIDConfig()
+                {
+                    ContinuousMode = true,
+                    Power = 24,
+                    Algorithm = AlgorithmType.DynamicQ,
+                    StartQ = 4,
                     MinQ = 0,
                     MaxQ = 15,
                     Session = Session.S0,
@@ -549,7 +567,11 @@ namespace unitechRFIDSample.ViewModels
                     IdleTime = 0
                 };
 
-                _reader.BaseUHF.RFIDConfig = rfidConfig;
+                //<timmy> get option of ComboBox ConnectionTypes then switch parameters
+                if (SelectedConnectionType.Value == IConstValue.Serial)
+                    _reader.BaseUHF.RFIDConfig = rfidConfigUSB; //USB COM
+                else
+                    _reader.BaseUHF.RFIDConfig = rfidConfigBluetooth; //BT MAC
 
                 switch (_reader.DeviceType)
                 {
@@ -580,13 +602,13 @@ namespace unitechRFIDSample.ViewModels
             else if (param.Equals(IConstValue.Find)) { OnFind(); }
             else if (param.Equals("Clear"))
             {
-                //<timmy>
+                //<timmy>對應Button Clear
                 AccTags.Clear();                
                 mainWindow.TextBlockAccumlated.Text = "累計: " + AccTags.Count().ToString();
-                //mainWindow.ButtonClear.Content = "Clear Result " + AccTags.Count().ToString();                
-                CycleTags.Clear();
-                InventoryTagsCount = 0;
-                mainWindow.TextBlockScanned.Text = "掃描周期: 找到 " + InventoryTagsCount + " tags";
+                //mainWindow.ButtonClear.Content = "Clear Result " + AccTags.Count().ToString();
+                //CycleTags.Clear();
+                //InventoryTagsCount = 0;
+                //mainWindow.TextBlockScanned.Text = "掃描周期: 找到 " + InventoryTagsCount + " tags";
             }
         }
 
@@ -1573,7 +1595,7 @@ namespace unitechRFIDSample.ViewModels
                     //stop => invetory: 代表停止掃描
                     Application.Current.Dispatcher.Invoke(() =>
                     {
-                        CycleTags.Add("停止掃描 " + DateTime.Now);
+                        CycleTags.Add("停止掃描 " + DateTime.Now.ToString("HH:mm:ss.fff"));
                         //StableTags.Add("Found " + InventoryTagsCount + " tags");
                         mainWindow.TextBlockScanned.Text = "掃描周期: 找到 " + InventoryTagsCount + " tags";
                     });
@@ -1585,7 +1607,7 @@ namespace unitechRFIDSample.ViewModels
                     {
                         InventoryTagsCount = 0;
                         CycleTags.Clear();
-                        CycleTags.Add("盤點讀取開始 " + DateTime.Now);
+                        CycleTags.Add("盤點讀取開始 " + DateTime.Now.ToString("HH:mm:ss.fff"));
                         mainWindow.TextBlockScanned.Text = "掃描周期: Finding";
                     });
 
