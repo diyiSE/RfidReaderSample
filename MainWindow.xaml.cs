@@ -38,7 +38,7 @@ namespace unitechRFIDSample
             InitializeComponent();
 
             //<timmy> sets title wtih version
-            this.Title += " 1.0.13 Rev [" + VersionTag.Rev + "]";
+            this.Title += " " + VersionTag.Ver + " Rev [" + VersionTag.Rev + "]";
 
             DataContext = new MainViewModel();
             
