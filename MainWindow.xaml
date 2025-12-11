@@ -326,12 +326,20 @@
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="50"/>
                                                 <ColumnDefinition Width="200"/>
+                                                <ColumnDefinition Width="75"/>
                                                 <ColumnDefinition Width="*"/>
                                             </Grid.ColumnDefinitions>
 
                                             <TextBlock Grid.Column="0" Style="{StaticResource infoTag}" Text="Text:"/>
                                             <TextBox Grid.Column="1" Margin="10,0,10,0" VerticalAlignment="Center"
                                                      Text="{Binding Path=Text, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+
+                                            <TextBlock Grid.Column="2" Style="{StaticResource infoTag}">偵測模式:</TextBlock>
+                                            <ComboBox Grid.Column="3" Margin="0,0,10,0" Name="ComboBoxModeProfile"
+                                                ItemsSource="{Binding ScanProfiles}"
+                                                SelectedItem="{Binding SelectedScanProfile}"
+                                                IsEnabled="{Binding IsDisconnected}"
+                                                VerticalAlignment="Center" HorizontalAlignment="Stretch"/>
                                         </Grid>
 
                                         <Grid Grid.Row="5">

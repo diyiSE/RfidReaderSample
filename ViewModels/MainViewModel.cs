@@ -347,6 +347,12 @@ namespace unitechRFIDSample.ViewModels
         public string ConnectPath { get; set; }
         //::<timmy> PS.在XAML中TextBox等UI元件bind屬性 
 
+
+        //<timmy>
+        public List<string> ScanProfiles { get; set; }
+        public string SelectedScanProfile { get; set; }
+
+
         private bool _isConnected;
         public bool IsConnected
         {
@@ -441,6 +447,14 @@ namespace unitechRFIDSample.ViewModels
             BaudRate.Add(new ItemCollection("115200"));
             BaudRate.Add(new ItemCollection("460800"));
             BaudRate.Add(new ItemCollection("921600"));
+
+            //<timmy>加入profile選項
+            ScanProfiles = new List<string>();
+            ScanProfiles.Add("Middle");
+            ScanProfiles.Add("Fast");
+            ScanProfiles.Add("Slow");
+            //ScanProfiles = new List<ItemCollection>();
+            SelectedScanProfile = ScanProfiles.FirstOrDefault();
 
             Mode = new ObservableCollection<string>
             {
@@ -551,8 +565,54 @@ namespace unitechRFIDSample.ViewModels
                     IdleTime = 0
                 };
 
-                //<timmy> Bluetooth: 用較快的讀取法(連續模式), 原本sample code的預設 
+                //<timmy> Bluetooth: 用較快的讀取法(連續模式), 參考原本sample code的預設 
                 RFIDConfig rfidConfigBluetooth = new RFIDConfig()
+                {
+                    ContinuousMode = true,
+                    Power = 24,
+                    Algorithm = AlgorithmType.FixedQ, //Dynamic
+                    StartQ = 1, //4
+                    MinQ = 0,
+                    MaxQ = 1, //15
+                    Session = Session.S0,
+                    Encoding = unitechRFID.Encoding.FM0,
+                    Target = Target.A,
+                    InventoryTime = 200,
+                    IdleTime = 0
+                };
+
+                //制定幾種模式供選擇
+                var rfidConfigSlow = new RFIDConfig()
+                {
+                    ContinuousMode = false,
+                    Power = 27,
+                    Algorithm = AlgorithmType.DynamicQ,
+                    StartQ = 4,
+                    MinQ = 0,
+                    MaxQ = 15,
+                    Session = Session.S0,
+                    Encoding = unitechRFID.Encoding.FM0,
+                    Target = Target.A,
+                    InventoryTime = 500,
+                    IdleTime = 0
+                };
+                var rfidConfigMiddle = new RFIDConfig()
+                {
+                    ContinuousMode = true,
+                    Power = 22,
+                    Algorithm = AlgorithmType.DynamicQ,
+                    StartQ = 1,
+                    MinQ = 0,
+                    MaxQ = 1,
+                    Session = Session.S2,
+                    Encoding = unitechRFID.Encoding.FM0,
+                    Target = Target.A,
+                    InventoryTime = 200,
+                    IdleTime = 50
+                };
+
+
+                var rfidConfigDefault = new RFIDConfig()
                 {
                     ContinuousMode = true,
                     Power = 24,
@@ -567,11 +627,26 @@ namespace unitechRFIDSample.ViewModels
                     IdleTime = 0
                 };
 
-                //<timmy> get option of ComboBox ConnectionTypes then switch parameters
-                if (SelectedConnectionType.Value == IConstValue.Serial)
-                    _reader.BaseUHF.RFIDConfig = rfidConfigUSB; //USB COM
-                else
-                    _reader.BaseUHF.RFIDConfig = rfidConfigBluetooth; //BT MAC
+                ////<timmy> get option of ComboBox ConnectionTypes then switch parameters
+                //if (SelectedConnectionType.Value == IConstValue.Serial)
+                //    _reader.BaseUHF.RFIDConfig = rfidConfigUSB; //USB COM
+                //else
+                //    _reader.BaseUHF.RFIDConfig = rfidConfigBluetooth; //BT MAC
+
+                //<timmy> base on selection
+                Console.WriteLine("" + SelectedScanProfile);
+                switch (SelectedScanProfile)
+                {
+                    case "Middle": //中間 => 仍再調
+                        _reader.BaseUHF.RFIDConfig = rfidConfigMiddle;
+                        break;
+                    case "Slow": //慢、穩、不夠強
+                        _reader.BaseUHF.RFIDConfig = rfidConfigSlow;
+                        break;
+                    default: //預設, 快速但易當機
+                        _reader.BaseUHF.RFIDConfig = rfidConfigDefault;
+                        break;
+                }
 
                 switch (_reader.DeviceType)
                 {
