@@ -335,23 +335,25 @@ namespace unitechRFIDSample.ViewModels
         //<timmy> for UI control (但這不符合WPF MVVM原則)
         public MainWindow mainWindow;
 
+        
+
+        int InventoryTagsCount = 0;
+
+        public string ConnectPath { get; set; }
+
+        #region <timmy>在XAML中TextBox等UI元件binding屬性         
         //<Timmy> bind list box for found tags
         public ObservableCollection<string> AccTags { get; set; } = new ObservableCollection<string>();
         //累計的tags
         //public List<string> RfidTags { get; set; } = new List<string>();
-
         public ObservableCollection<string> CycleTags { get; set; } = new ObservableCollection<string>();
         //在一次盤點(掃描)流程中找到的Tags
-        int InventoryTagsCount = 0;
 
-        public string ConnectPath { get; set; }
-        //::<timmy> PS.在XAML中TextBox等UI元件bind屬性 
-
-
-        //<timmy>
         public List<string> ScanProfiles { get; set; }
         public string SelectedScanProfile { get; set; }
-
+        public string TextScanned { get; set; }
+        public string TextAccumlated { get; set; }
+        #endregion
 
         private bool _isConnected;
         public bool IsConnected
@@ -495,6 +497,10 @@ namespace unitechRFIDSample.ViewModels
             //<timmy>
             //RfidTags = new ObservableCollection<string>();
             //RfidTags.Add("Start test" + DateTime.Now);
+            //TextAccumlated = "累計找到的Tags";
+            //NotifyPropertyChanged(nameof(TextAccumlated));
+            //TextScanned = "讀取週期找到的Tags";
+            //NotifyPropertyChanged(nameof(TextScanned));
 
             NotifyPropertyChanged(nameof(Offset));
             NotifyPropertyChanged(nameof(Length));
@@ -678,8 +684,10 @@ namespace unitechRFIDSample.ViewModels
             else if (param.Equals("Clear"))
             {
                 //<timmy>對應Button Clear
-                AccTags.Clear();                
-                mainWindow.TextBlockAccumlated.Text = "累計: " + AccTags.Count().ToString();
+                AccTags.Clear();
+                TextAccumlated = AccTags.Count().ToString();
+                NotifyPropertyChanged(nameof(TextAccumlated));
+                //mainWindow.TextBlockAccumlated.Text = TextAccumlated;
                 //mainWindow.ButtonClear.Content = "Clear Result " + AccTags.Count().ToString();
                 //CycleTags.Clear();
                 //InventoryTagsCount = 0;
@@ -1672,18 +1680,23 @@ namespace unitechRFIDSample.ViewModels
                     {
                         CycleTags.Add("停止掃描 " + DateTime.Now.ToString("HH:mm:ss.fff"));
                         //StableTags.Add("Found " + InventoryTagsCount + " tags");
-                        mainWindow.TextBlockScanned.Text = "掃描周期: 找到 " + InventoryTagsCount + " tags";
+                        TextScanned = InventoryTagsCount.ToString();
+                        NotifyPropertyChanged(nameof(TextScanned));
+                        //mainWindow.TextBlockScanned.Text = TextScanned;
                     });
                 }
                 else 
                 {
-                    //invetory -> stop:  代表開始掃描                    
+                    //invetory -> stop:  代表開始掃描
                     Application.Current.Dispatcher.Invoke(() =>
                     {
                         InventoryTagsCount = 0;
                         CycleTags.Clear();
                         CycleTags.Add("盤點讀取開始 " + DateTime.Now.ToString("HH:mm:ss.fff"));
-                        mainWindow.TextBlockScanned.Text = "掃描周期: Finding";
+                        //TextScanned = "掃描周期: Finding";
+                        TextScanned = " 讀取中...";
+                        NotifyPropertyChanged(nameof(TextScanned));
+                        //mainWindow.TextBlockScanned.Text = TextScanned;
                     });
 
                 }
@@ -1853,8 +1866,10 @@ namespace unitechRFIDSample.ViewModels
                                     //RfidTags.Add("test" + DateTime.Now);
                                     //mainWindow.ListRfidTags.Items.Add(EPC);
                                     //mainWindow.lstTags.Items.Refresh();
-                                    
-                                    mainWindow.TextBlockAccumlated.Text = "累計: " + AccTags.Count().ToString();
+
+                                    TextAccumlated = AccTags.Count().ToString();
+                                    NotifyPropertyChanged(nameof(TextAccumlated));
+                                    //mainWindow.TextBlockAccumlated.Text = TextAccumlated;
                                     //mainWindow.ButtonClear.Content = "Clear Result " + AccTags.Count().ToString();
 
                                     //RfidTags.OrderByDescending(x => x);

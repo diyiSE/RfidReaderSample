@@ -63,17 +63,20 @@ namespace unitechRFIDSample
             ((MainViewModel)DataContext).Dispose();
         }
 
+        //:: PS.似乎要在ViewModel控制被xaml Binding的屬性值, 不宜直接在window.xmal.cs中直接控制
+        //<timmy>added
+        //void PresetListItems()
+        //{
+        //    //<timmy>
+        //    ListRfidTags.Items.Clear();
+        //    //lstTags.Items.Add(new ListItem("123"));
+        //    ListRfidTags.Items.Add("test1");
+        //    //ListRfidTags.Items.Add("2");
+        //    //ListRfidTags.Items.Add("3");
+        //}
 
-        void PresetListItems()
-        {
-            //<timmy>
-            ListRfidTags.Items.Clear();
-            //lstTags.Items.Add(new ListItem("123"));
-            ListRfidTags.Items.Add("test1");
-            //ListRfidTags.Items.Add("2");
-            //ListRfidTags.Items.Add("3");
-        }
 
+        //<timmy>added
         //public void AddItem(string text)
         //{
         //    RfidTags.Items.Add(text);

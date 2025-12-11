@@ -351,8 +351,14 @@
                                                 <RowDefinition Height="20"/>
                                                 <RowDefinition Height="*"/>
                                             </Grid.RowDefinitions>
-                                            <TextBlock Text="累計找到的Tags" Grid.Column="0" Grid.Row="0" HorizontalAlignment="Center" Name="TextBlockAccumlated"></TextBlock>
-                                            <TextBlock Text="讀取週期找到的Tags" Grid.Column="1"  Grid.Row="0" HorizontalAlignment="Center" Name="TextBlockScanned"></TextBlock>
+                                            <TextBlock  Grid.Column="0" Grid.Row="0" HorizontalAlignment="Center" Name="TextBlockAccumlated">
+                                                <Run>累計找到的Tag: </Run>
+                                                <Run Text="{Binding TextAccumlated}"/>
+                                            </TextBlock>
+                                            <TextBlock  Grid.Column="1"  Grid.Row="0" HorizontalAlignment="Center" Name="TextBlockScanned">
+                                                <Run>單次週期找到的Tag: </Run>
+                                                <Run Text="{Binding TextScanned}"/>
+                                            </TextBlock>
                                             <ListBox Name="ListRfidTags" Grid.Column="0"  Grid.Row="1" ItemsSource="{Binding AccTags}" FontFamily="Consolas" />
                                             <ListBox Name="ListRfidTagsStable" Grid.Column="1" Grid.Row="1" ItemsSource="{Binding CycleTags}" FontFamily="Consolas" />
                                         </Grid>
