@@ -469,11 +469,11 @@ namespace unitechRFIDSample.ViewModels
             BaudRate.Add(new ItemCollection("460800"));
             BaudRate.Add(new ItemCollection("921600"));
 
-            //<timmy>加入profile選項
+            //<timmy>加入scan profile選項
             ScanProfiles = new List<string>();
-            ScanProfiles.Add("中間");
-            ScanProfiles.Add("慢 (較穩但不易掃到)");
-            ScanProfiles.Add("快 (Default但不穩)");            
+            ScanProfiles.Add("Middle (中間)");
+            ScanProfiles.Add("Low (較穩但不易掃到)");
+            ScanProfiles.Add("Default Fast (快但不穩)");
             //ScanProfiles = new List<ItemCollection>();
             SelectedScanProfile = ScanProfiles.FirstOrDefault();
             //<>
@@ -554,6 +554,10 @@ namespace unitechRFIDSample.ViewModels
         {
             if (_reader != null)
             {
+                //<timmy>補加: 先切斷舊的事件設定
+                _reader.ActionStateChangedEvent -= OnActionStateChanged;
+                _reader.ConnectStateChangedEvent -= OnConnectStateChangedEvent;
+
                 _reader.ActionStateChangedEvent += OnActionStateChanged;
                 _reader.ConnectStateChangedEvent += OnConnectStateChangedEvent;
 
@@ -563,6 +567,11 @@ namespace unitechRFIDSample.ViewModels
                     case DeviceType.RM300P:
                         break;
                     default:
+
+                        //<timmy>補加: 先切斷舊的事件設定
+                        _reader.BatteryStateEvent -= OnBatteryEvent;
+                        _reader.KeyStateEvent -= OnKeyEvent;
+
                         _reader.BatteryStateEvent += OnBatteryEvent;
                         _reader.KeyStateEvent += OnKeyEvent;
                         break;
@@ -717,10 +726,24 @@ namespace unitechRFIDSample.ViewModels
 
         private void OnConnect()
         {
+            //<timmy>補加: 清掉舊的
+            if (_reader != null)
+            {
+                _reader.Dispose();
+                _reader = null;
+            }
+
             if (_reader == null & !string.IsNullOrEmpty(ConnectPath))
             {
                 if (SelectedConnectionType.Name.Equals(IConstValue.Serial))
                 {
+                    //<timmy>補加: 清掉舊的
+                    if (_baseTransport != null)
+                    {
+                        _baseTransport.Dispose();
+                        _baseTransport = null;
+                    }
+
                     //Detect device
                     _baseTransport = new TransportSerial(DeviceType.Unknown, ConnectPath, int.Parse(SelectedBaudRate.Name));
                     _reader = new UHFReader(_baseTransport);
@@ -733,6 +756,13 @@ namespace unitechRFIDSample.ViewModels
                 }
                 else
                 {
+                    //<timmy>補加: 清掉舊的
+                    if (_baseTransport != null)
+                    {
+                        _baseTransport.Dispose();
+                        _baseTransport = null;
+                    }
+
                     _baseTransport = new TransportBluetooth(DeviceType.RP902, ConnectPath);
                     _reader = new UHFReader(_baseTransport);
 
@@ -750,6 +780,20 @@ namespace unitechRFIDSample.ViewModels
             OnStop();
             _reader.Disconnect();
         }
+
+        //<timmy>
+        /// <summary>
+        /// 關閉WPF前先切斷連線, 以免DLL仍在背景運行
+        /// </summary>
+        public void DisconnectBeforeClose()
+        {
+            if(_reader != null)
+            {
+                OnStop();
+                _reader.Disconnect();
+            }
+        }
+
 
         #region Device Settings
         private void OnFactoryReset()
@@ -1436,6 +1480,9 @@ namespace unitechRFIDSample.ViewModels
             else
             {
                 MessageBox.Show("No device detected!");
+                ////<timmy>
+                //MessageBox.Show("沒有連線!");
+                //MessageBox.Show("","",)
             }
         }
 
@@ -1727,7 +1774,7 @@ namespace unitechRFIDSample.ViewModels
             ActionStateText = e.ActionState.ToString();
 
             //<timmy>trace timing
-            ActionStateText += " (" + DateTime.Now.ToString("HH:mm:ss") + ")";
+            ActionStateText += "\r\n (" + DateTime.Now.ToString("HH:mm:ss.fff") + ")";
 
             NotifyPropertyChanged(nameof(InventoryText));
             NotifyPropertyChanged(nameof(IsInventoried));
@@ -1800,14 +1847,24 @@ namespace unitechRFIDSample.ViewModels
             if (KeyStatus == KeyState.KeyDown.ToString())
             {
                 OnInventory();
+                
                 //<timmy>trace timing
-                KeyStatus = "DOWN (" + DateTime.Now.ToString("HH:mm:ss") + ")";
+                KeyStatus = "DOWN (" + DateTime.Now.ToString("HH:mm:ss.fff") + ")";
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    CycleTags.Add("Key壓下 " + DateTime.Now.ToString("HH:mm:ss.fff"));
+                });
             }
             else
             {
                 OnStop();
+                
                 //<timmy>trace timing
-                KeyStatus = "UP (" + DateTime.Now.ToString("HH:mm:ss") + ")";
+                KeyStatus = "UP (" + DateTime.Now.ToString("HH:mm:ss.fff") + ")";
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    CycleTags.Add("Key放開 " + DateTime.Now.ToString("HH:mm:ss.fff"));
+                });
             }
 
             NotifyPropertyChanged(nameof(KeyStatus));
@@ -1816,6 +1873,7 @@ namespace unitechRFIDSample.ViewModels
         private void OnTemperatureEvent(object sender, TemperatureEventArgs e)
         {
             Temperature = e.Temperature.ToString();
+            
             //<timmy>trace timing
             Temperature += "°C (" + DateTime.Now.ToString("HH:mm:ss")+")";
 
@@ -1825,6 +1883,7 @@ namespace unitechRFIDSample.ViewModels
         private void OnBatteryEvent(object sender, BatteryStateEventArgs e)
         {
             Battery = e.Battery.ToString();
+            
             //<timmy>trace timing
             Battery += "% (" + DateTime.Now.ToString("HH:mm:ss") + ")";
 

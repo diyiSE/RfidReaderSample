@@ -37,6 +37,9 @@ namespace unitechRFIDSample
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
+            //<timmy>若已連線要先切斷
+            ((MainViewModel)DataContext).DisconnectBeforeClose();
+
             ((MainViewModel)DataContext).Dispose();
         }
 
