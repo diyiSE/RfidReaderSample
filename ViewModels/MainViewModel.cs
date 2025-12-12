@@ -1683,14 +1683,14 @@ namespace unitechRFIDSample.ViewModels
         #endregion
 
         #region Event Functions
-        string InventoryTextLast;
+        string InventoryTextLast; //<timmy>用來判斷[讀取]的起始切換狀況
         private void OnActionStateChanged(object sender, ActionStateEventArgs e)
         {
             InventoryText = e.ActionState == ActionState.Stop ? IConstValue.Inventory : IConstValue.Stop;
             _isOnInventory = e.ActionState == ActionState.Stop ? false : true;
 
-            //<timmy>
-            if(InventoryTextLast != InventoryText)
+            #region <timmy> 判斷[讀取]的起始切換狀況
+            if (InventoryTextLast != InventoryText)
             {
                 //changed 
                 if (InventoryText == IConstValue.Inventory)
@@ -1722,9 +1722,12 @@ namespace unitechRFIDSample.ViewModels
                 }
             }
             InventoryTextLast = InventoryText;
-
+            #endregion
 
             ActionStateText = e.ActionState.ToString();
+
+            //<timmy>trace timing
+            ActionStateText += " (" + DateTime.Now.ToString("HH:mm:ss") + ")";
 
             NotifyPropertyChanged(nameof(InventoryText));
             NotifyPropertyChanged(nameof(IsInventoried));
@@ -1797,10 +1800,14 @@ namespace unitechRFIDSample.ViewModels
             if (KeyStatus == KeyState.KeyDown.ToString())
             {
                 OnInventory();
+                //<timmy>trace timing
+                KeyStatus = "DOWN (" + DateTime.Now.ToString("HH:mm:ss") + ")";
             }
             else
             {
                 OnStop();
+                //<timmy>trace timing
+                KeyStatus = "UP (" + DateTime.Now.ToString("HH:mm:ss") + ")";
             }
 
             NotifyPropertyChanged(nameof(KeyStatus));
@@ -1809,12 +1816,18 @@ namespace unitechRFIDSample.ViewModels
         private void OnTemperatureEvent(object sender, TemperatureEventArgs e)
         {
             Temperature = e.Temperature.ToString();
+            //<timmy>trace timing
+            Temperature += "°C (" + DateTime.Now.ToString("HH:mm:ss")+")";
+
             NotifyPropertyChanged(nameof(Temperature));
         }
 
         private void OnBatteryEvent(object sender, BatteryStateEventArgs e)
         {
             Battery = e.Battery.ToString();
+            //<timmy>trace timing
+            Battery += "% (" + DateTime.Now.ToString("HH:mm:ss") + ")";
+
             NotifyPropertyChanged(nameof(Battery));
         }
 
