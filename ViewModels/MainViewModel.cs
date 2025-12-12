@@ -333,27 +333,46 @@ namespace unitechRFIDSample.ViewModels
 
 
         //<timmy> for UI control (但這不符合WPF MVVM原則)
-        public MainWindow mainWindow;
-
-        
-
+        //public MainWindow mainWindow;
         int InventoryTagsCount = 0;
-
-        public string ConnectPath { get; set; }
-
+        
         #region <timmy>在XAML中TextBox等UI元件binding屬性         
         //<Timmy> bind list box for found tags
-        public ObservableCollection<string> AccTags { get; set; } = new ObservableCollection<string>();
         //累計的tags
+        public ObservableCollection<string> AccTags { get; set; } = new ObservableCollection<string>();
         //public List<string> RfidTags { get; set; } = new List<string>();
         public ObservableCollection<string> CycleTags { get; set; } = new ObservableCollection<string>();
         //在一次盤點(掃描)流程中找到的Tags
 
         public List<string> ScanProfiles { get; set; }
         public string SelectedScanProfile { get; set; }
-        public string TextScanned { get; set; }
-        public string TextAccumlated { get; set; }
+        public int SelectedScanProfileIndex { get; set; }
+
+        string _textScanned;
+        public string TextScanned 
+        { 
+            get => _textScanned;
+            set
+            {
+                _textScanned = value;
+                NotifyPropertyChanged(nameof(TextScanned));
+            }
+        }
+        string _textAccumlated;
+        public string TextAccumlated 
+        { 
+            get => _textAccumlated;
+            set
+            {
+                _textAccumlated = value;
+                NotifyPropertyChanged(nameof(TextAccumlated));
+            }
+        }
+
         #endregion
+
+
+        public string ConnectPath { get; set; }
 
         private bool _isConnected;
         public bool IsConnected
@@ -452,11 +471,12 @@ namespace unitechRFIDSample.ViewModels
 
             //<timmy>加入profile選項
             ScanProfiles = new List<string>();
-            ScanProfiles.Add("Middle");
-            ScanProfiles.Add("Fast");
-            ScanProfiles.Add("Slow");
+            ScanProfiles.Add("中間");
+            ScanProfiles.Add("慢 (較穩但不易掃到)");
+            ScanProfiles.Add("快 (Default但不穩)");            
             //ScanProfiles = new List<ItemCollection>();
             SelectedScanProfile = ScanProfiles.FirstOrDefault();
+            //<>
 
             Mode = new ObservableCollection<string>
             {
@@ -606,18 +626,16 @@ namespace unitechRFIDSample.ViewModels
                 {
                     ContinuousMode = true,
                     Power = 22,
-                    Algorithm = AlgorithmType.DynamicQ,
-                    StartQ = 1,
+                    Algorithm = AlgorithmType.FixedQ,
+                    StartQ = 2,
                     MinQ = 0,
-                    MaxQ = 1,
+                    MaxQ = 6,
                     Session = Session.S2,
                     Encoding = unitechRFID.Encoding.FM0,
                     Target = Target.A,
-                    InventoryTime = 200,
+                    InventoryTime = 250,
                     IdleTime = 50
                 };
-
-
                 var rfidConfigDefault = new RFIDConfig()
                 {
                     ContinuousMode = true,
@@ -641,12 +659,12 @@ namespace unitechRFIDSample.ViewModels
 
                 //<timmy> base on selection
                 Console.WriteLine("" + SelectedScanProfile);
-                switch (SelectedScanProfile)
+                switch (SelectedScanProfileIndex)
                 {
-                    case "Middle": //中間 => 仍再調
+                    case 0: //中間 => 仍再調
                         _reader.BaseUHF.RFIDConfig = rfidConfigMiddle;
                         break;
-                    case "Slow": //慢、穩、不夠強
+                    case 1: //慢、穩、不夠強
                         _reader.BaseUHF.RFIDConfig = rfidConfigSlow;
                         break;
                     default: //預設, 快速但易當機
@@ -686,11 +704,13 @@ namespace unitechRFIDSample.ViewModels
                 //<timmy>對應Button Clear
                 AccTags.Clear();
                 TextAccumlated = AccTags.Count().ToString();
-                NotifyPropertyChanged(nameof(TextAccumlated));
+                //NotifyPropertyChanged(nameof(TextAccumlated));
                 //mainWindow.TextBlockAccumlated.Text = TextAccumlated;
                 //mainWindow.ButtonClear.Content = "Clear Result " + AccTags.Count().ToString();
-                //CycleTags.Clear();
-                //InventoryTagsCount = 0;
+                CycleTags.Clear();
+                InventoryTagsCount = 0;
+                TextScanned = InventoryTagsCount.ToString();
+                NotifyPropertyChanged(nameof(TextScanned));
                 //mainWindow.TextBlockScanned.Text = "掃描周期: 找到 " + InventoryTagsCount + " tags";
             }
         }
@@ -1681,7 +1701,7 @@ namespace unitechRFIDSample.ViewModels
                         CycleTags.Add("停止掃描 " + DateTime.Now.ToString("HH:mm:ss.fff"));
                         //StableTags.Add("Found " + InventoryTagsCount + " tags");
                         TextScanned = InventoryTagsCount.ToString();
-                        NotifyPropertyChanged(nameof(TextScanned));
+                        //NotifyPropertyChanged(nameof(TextScanned));
                         //mainWindow.TextBlockScanned.Text = TextScanned;
                     });
                 }
@@ -1695,7 +1715,7 @@ namespace unitechRFIDSample.ViewModels
                         CycleTags.Add("盤點讀取開始 " + DateTime.Now.ToString("HH:mm:ss.fff"));
                         //TextScanned = "掃描周期: Finding";
                         TextScanned = " 讀取中...";
-                        NotifyPropertyChanged(nameof(TextScanned));
+                        //NotifyPropertyChanged(nameof(TextScanned));
                         //mainWindow.TextBlockScanned.Text = TextScanned;
                     });
 
@@ -1868,7 +1888,7 @@ namespace unitechRFIDSample.ViewModels
                                     //mainWindow.lstTags.Items.Refresh();
 
                                     TextAccumlated = AccTags.Count().ToString();
-                                    NotifyPropertyChanged(nameof(TextAccumlated));
+                                    //NotifyPropertyChanged(nameof(TextAccumlated));
                                     //mainWindow.TextBlockAccumlated.Text = TextAccumlated;
                                     //mainWindow.ButtonClear.Content = "Clear Result " + AccTags.Count().ToString();
 

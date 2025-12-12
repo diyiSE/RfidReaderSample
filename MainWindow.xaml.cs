@@ -1,28 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO.Ports;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
+﻿using System.Windows;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using unitechRFID;
-using unitechRFID.Diagnositics;
-using unitechRFID.Params;
-using unitechRFID.Reader;
-using unitechRFID.Transport;
-using unitechRFID.UHF.Params;
-using RJCP.IO.Ports;
-using unitechRFID.Util.Diagnotics;
 using unitechRFIDSample.ViewModels;
 using System.Text.RegularExpressions;
 
@@ -43,7 +20,7 @@ namespace unitechRFIDSample
             DataContext = new MainViewModel();
             
             //<timmy> try to set UI objects
-            ((MainViewModel)DataContext).mainWindow = this;
+            //((MainViewModel)DataContext).mainWindow = this;
             //PresetListItems();
         }
 
