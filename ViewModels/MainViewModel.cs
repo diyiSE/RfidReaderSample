@@ -695,8 +695,19 @@ namespace unitechRFIDSample.ViewModels
         public void OnOperation(string param)
         {
             Show(param);
-            if (param.Equals(IConstValue.Connect)) { OnConnect(); }
-            else if (param.Equals(IConstValue.Disconnect)) { OnDisconnect(); }
+            if (param.Equals(IConstValue.Connect)) 
+            { 
+                OnConnect();
+            }
+            else if (param.Equals(IConstValue.Disconnect))
+            { 
+                OnDisconnect();
+                AccTags.Clear(); //[Timmy] clear results
+                TextAccumlated = AccTags.Count().ToString();
+                CycleTags.Clear();
+                InventoryTagsCount = 0;
+                TextScanned = InventoryTagsCount.ToString();
+            }
             else if (param.Equals(IConstValue.FactoryReset)) { OnFactoryReset(); }
             else if (param.Equals(IConstValue.FirmwareUpdate)) { OnFirmwareUpdate(); }
             else if (param.Equals(IConstValue.ExecuteCommand)) { OnExecuteCommand(); }

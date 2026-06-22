@@ -360,8 +360,8 @@
                                                 <Run>單次週期找到的Tag: </Run>
                                                 <Run Text="{Binding TextScanned}"/>
                                             </TextBlock>
-                                            <ListBox Name="ListRfidTags" Grid.Column="0"  Grid.Row="1" ItemsSource="{Binding AccTags}" FontFamily="Consolas" />
-                                            <ListBox Name="ListRfidTagsStable" Grid.Column="1" Grid.Row="1" ItemsSource="{Binding CycleTags}" FontFamily="Consolas" />
+                                            <ListBox Name="ListRfidTagsAccmulated" Grid.Column="0"  Grid.Row="1" ItemsSource="{Binding AccTags}" FontFamily="Consolas" />
+                                            <ListBox Name="ListRfidTagsInCycle" Grid.Column="1" Grid.Row="1" ItemsSource="{Binding CycleTags}" FontFamily="Consolas" />
                                         </Grid>
                                     </Grid>
                                 </Grid>
