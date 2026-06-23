@@ -343,10 +343,10 @@ namespace unitechRFIDSample.ViewModels
         //public List<string> RfidTags { get; set; } = new List<string>();
 
         //在一次盤點(掃描)流程中找到的Tags 與 Debug訊息 - 顯示在UI
-        public ObservableCollection<string> CycleTags { get; set; } = new ObservableCollection<string>();
+        public ObservableCollection<string> CycleEvents { get; set; } = new ObservableCollection<string>();
         
         //在一次盤點(掃描)流程中找到的Tags - 不直接顯示在UI
-        public HashSet<string> TagSet { get; set; } = new HashSet<string>();        
+        public HashSet<string> CycleTags { get; set; } = new HashSet<string>();
 
         public List<string> ScanProfiles { get; set; }
         public string SelectedScanProfile { get; set; }
@@ -719,8 +719,8 @@ namespace unitechRFIDSample.ViewModels
                 OnDisconnect();
                 AccTags.Clear(); //[Timmy] clear results
                 TextAccumlated = AccTags.Count().ToString();
+                CycleEvents.Clear();
                 CycleTags.Clear();
-                TagSet.Clear();
                 InventoryTagsCount = 0;
                 TextScanned = InventoryTagsCount.ToString();
             }
@@ -743,8 +743,8 @@ namespace unitechRFIDSample.ViewModels
                 //NotifyPropertyChanged(nameof(TextAccumlated));
                 //mainWindow.TextBlockAccumlated.Text = TextAccumlated;
                 //mainWindow.ButtonClear.Content = "Clear Result " + AccTags.Count().ToString();
+                CycleEvents.Clear();
                 CycleTags.Clear();
-                TagSet.Clear();
                 InventoryTagsCount = 0;
                 TextScanned = InventoryTagsCount.ToString();
                 NotifyPropertyChanged(nameof(TextScanned));
@@ -1541,7 +1541,7 @@ namespace unitechRFIDSample.ViewModels
                 Application.Current.Dispatcher.Invoke(() =>
                 {
                     //timmy trace
-                    CycleTags.Add(eventTime.ToString("HH:mm:ss.fff") + ": 開始掃描 " + res);
+                    CycleEvents.Add(eventTime.ToString("HH:mm:ss.fff") + ": 開始掃描 " + res);
                 });
 
                 _isOnInventory = true;
@@ -1559,7 +1559,7 @@ namespace unitechRFIDSample.ViewModels
                 var eventTime = DateTime.Now;
                 Application.Current.Dispatcher.Invoke(() =>
                 {
-                    CycleTags.Add(eventTime.ToString("HH:mm:ss.fff") + ": OnStop 送Stop前 ");
+                    CycleEvents.Add(eventTime.ToString("HH:mm:ss.fff") + ": OnStop 送Stop前 ");
                 });
                 var res = 
                 _reader.BaseUHF.Stop();
@@ -1567,7 +1567,7 @@ namespace unitechRFIDSample.ViewModels
                 //Console.WriteLine("Sending .Stop() " + DateTime.Now.ToString());
                 Application.Current.Dispatcher.Invoke(() =>
                 {
-                    CycleTags.Add(eventTime.ToString("HH:mm:ss.fff") + ": OnStop 送Stop後 " + res);
+                    CycleEvents.Add(eventTime.ToString("HH:mm:ss.fff") + ": OnStop 送Stop後 " + res);
                 });
                 //_isOnInventory = false;
                 //_isSendStop = true;
@@ -1577,7 +1577,7 @@ namespace unitechRFIDSample.ViewModels
             //    //[Timmy] debug
             //    Application.Current.Dispatcher.Invoke(() =>
             //    {
-            //        CycleTags.Add(DateTime.Now.ToString("HH:mm:ss.fff") + ": OnStop 被跳過!" );
+            //        CycleEvents.Add(DateTime.Now.ToString("HH:mm:ss.fff") + ": OnStop 被跳過!" );
             //    });
             //}
         }
@@ -1797,7 +1797,7 @@ namespace unitechRFIDSample.ViewModels
             Application.Current.Dispatcher.Invoke(() =>
             {
                 //timmy trace
-                CycleTags.Add(eventTime.ToString("HH:mm:ss.fff") + ": 轉態 " + e.ActionState);
+                CycleEvents.Add(eventTime.ToString("HH:mm:ss.fff") + ": 轉態 " + e.ActionState);
             });
 
             //if (e.ActionState == ActionState.Stop)
@@ -1813,7 +1813,7 @@ namespace unitechRFIDSample.ViewModels
                     var eventTime2 = DateTime.Now;
                     Application.Current.Dispatcher.Invoke(() =>
                     {
-                        CycleTags.Add(eventTime2.ToString("HH:mm:ss.fff") + ": 停止掃描 " );
+                        CycleEvents.Add(eventTime2.ToString("HH:mm:ss.fff") + ": 停止掃描 " );
                         //StableTags.Add("Found " + InventoryTagsCount + " tags");
                         TextScanned = InventoryTagsCount.ToString();
                         //NotifyPropertyChanged(nameof(TextScanned));
@@ -1827,8 +1827,8 @@ namespace unitechRFIDSample.ViewModels
                     Application.Current.Dispatcher.Invoke(() =>
                     {
                         //InventoryTagsCount = 0;
-                        //CycleTags.Clear();
-                        CycleTags.Add(eventTime3.ToString("HH:mm:ss.fff") + ": 盤點讀取開始 ");
+                        //CycleEvents.Clear();
+                        CycleEvents.Add(eventTime3.ToString("HH:mm:ss.fff") + ": 盤點讀取開始 ");
                         //TextScanned = "掃描周期: Finding";
                         TextScanned = " 讀取中...";
                         //NotifyPropertyChanged(nameof(TextScanned));
@@ -1921,7 +1921,7 @@ namespace unitechRFIDSample.ViewModels
             //string msgDebug = KeyStatus;
             //Application.Current.Dispatcher.Invoke(() =>
             //{
-            //    CycleTags.Add(KeyStatus + " - " + DateTime.Now.ToString("HH:mm:ss.fff"));
+            //    CycleEvents.Add(KeyStatus + " - " + DateTime.Now.ToString("HH:mm:ss.fff"));
             //});
 
             if (KeyStatus == KeyState.KeyDown.ToString())
@@ -1935,9 +1935,9 @@ namespace unitechRFIDSample.ViewModels
                 Application.Current.Dispatcher.Invoke(() =>
                 {
                     InventoryTagsCount = 0;
+                    CycleEvents.Clear();
                     CycleTags.Clear();
-                    TagSet.Clear();
-                    CycleTags.Add(eventTime.ToString("HH:mm:ss.fff") + ": Key壓下 ");
+                    CycleEvents.Add(eventTime.ToString("HH:mm:ss.fff") + ": Key壓下 ");
                 });
                 OnInventory(); //[Timmy]改在後方
             }
@@ -1949,7 +1949,7 @@ namespace unitechRFIDSample.ViewModels
                 KeyStatus = "放 (" + eventTime.ToString("HH:mm:ss") + ")";
                 Application.Current.Dispatcher.Invoke(() =>
                 {
-                    CycleTags.Add(eventTime.ToString("HH:mm:ss.fff") + ": Key放開 ");
+                    CycleEvents.Add(eventTime.ToString("HH:mm:ss.fff") + ": Key放開 ");
                 });
                 OnStop(); //[Timmy]改在後方
             }
@@ -2020,19 +2020,19 @@ namespace unitechRFIDSample.ViewModels
                 {
                     //if(mainWindow != null)
                     {
-                        if (!TagSet.Contains(EPC))
-                        //if (!CycleTags.Contains(EPC))
+                        if (!CycleTags.Contains(EPC))
+                        //if (!CycleEvents.Contains(EPC))
                         {
-                            TagSet.Add(EPC);
-                            InventoryTagsCount = TagSet.Count();
+                            CycleTags.Add(EPC);
+                            InventoryTagsCount = CycleTags.Count();
                             //InventoryTagsCount++;
                             var eventTime = DateTime.Now;
                             Application.Current.Dispatcher.Invoke(() =>
                             {
-                                CycleTags.Add(eventTime.ToString("HH:mm:ss.fff") + ": 🏷️" + InventoryTagsCount + "-" + EPC);
+                                CycleEvents.Add(eventTime.ToString("HH:mm:ss.fff") + ": 🏷️" + InventoryTagsCount + "-" + EPC);
                                 if (InventoryTagsCount > 3)  //[Timmy] 若已得3項, try to Auto Stop 
                                 {
-                                    CycleTags.Add(eventTime.ToString("HH:mm:ss.fff") + ": 強制停止");
+                                    CycleEvents.Add(eventTime.ToString("HH:mm:ss.fff") + ": 強制停止");
                                 }
                             });
                             if (InventoryTagsCount > 3)  //[Timmy] 若已得3項, try to Auto Stop 

@@ -361,7 +361,7 @@
                                                 <Run Text="{Binding TextScanned}"/>
                                             </TextBlock>
                                             <ListBox Name="ListRfidTagsAccmulated" Grid.Column="0"  Grid.Row="1" ItemsSource="{Binding AccTags}" FontFamily="Consolas" />
-                                            <ListBox Name="ListRfidTagsInCycle" Grid.Column="1" Grid.Row="1" ItemsSource="{Binding CycleTags}" FontFamily="Consolas" />
+                                            <ListBox Name="ListRfidTagsInCycle" Grid.Column="1" Grid.Row="1" ItemsSource="{Binding CycleEvents}" FontFamily="Consolas" />
                                         </Grid>
                                     </Grid>
                                 </Grid>
