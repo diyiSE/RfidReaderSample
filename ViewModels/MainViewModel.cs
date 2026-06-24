@@ -719,7 +719,7 @@ namespace unitechRFIDSample.ViewModels
             else if (param.Equals(IConstValue.Disconnect))
             { 
                 OnDisconnect();
-                AccTags.Clear(); //[Timmy] clear results
+                AccTags.Clear(); //[Timmy] clear results - 手動操作 斷線 時
                 TextAccumlated = AccTags.Count().ToString();
                 CycleEvents.Clear();
                 _cycleTags.Clear();
@@ -739,7 +739,7 @@ namespace unitechRFIDSample.ViewModels
             else if (param.Equals(IConstValue.Find)) { OnFind(); }
             else if (param.Equals("Clear"))
             {
-                //<timmy>對應Button Clear
+                //[timmy]對應Button Clear操作
                 AccTags.Clear();
                 TextAccumlated = AccTags.Count().ToString();
                 //NotifyPropertyChanged(nameof(TextAccumlated));
@@ -1547,17 +1547,21 @@ namespace unitechRFIDSample.ViewModels
                 });
 
                 _isOnInventory = true;
+
+                //to do
+                EPC = "tbc"; TID = "tbc"; RSSI = "tbc"; AntennaID = "tbc";
+                NotifyPropertyChanged(nameof(EPC));
+                NotifyPropertyChanged(nameof(TID));
+                NotifyPropertyChanged(nameof(RSSI));
+                NotifyPropertyChanged(nameof(AntennaID));
             }
         }
 
-
-        //bool _isSendStop = false;  //[timmy] add for testing
         private void OnStop() 
         {
-            //if (!_isSendStop)
+            //[Timmy] 試強制 可送Stop, 即使在inventory中
             //if (_isOnInventory)
             {
-                //Console.WriteLine("Send .Stop() " + DateTime.Now.ToString());
                 var eventTime = DateTime.Now;
                 Application.Current.Dispatcher.Invoke(() =>
                 {
@@ -1569,10 +1573,9 @@ namespace unitechRFIDSample.ViewModels
                 //Console.WriteLine("Sending .Stop() " + DateTime.Now.ToString());
                 Application.Current.Dispatcher.Invoke(() =>
                 {
-                    CycleEvents.Add(eventTime.ToString("HH:mm:ss.fff") + ": OnStop 送Stop後 " + res);
+                    CycleEvents.Add(eventTime2.ToString("HH:mm:ss.fff") + ": OnStop 送Stop後 " + res);
                 });
-                //_isOnInventory = false;
-                //_isSendStop = true;
+                _isOnInventory = false;
             }
             //else
             //{
@@ -1865,6 +1868,20 @@ namespace unitechRFIDSample.ViewModels
                     IsConnected = false;
                     DisplayEnabled = false;
                     ReleaseReader();
+
+                    //[Timmy] try to log/show timing of disconnected
+                    var eventTime2 = DateTime.Now;
+                    Application.Current.Dispatcher.Invoke(() =>
+                    {
+                        AccTags.Clear(); //[Timmy] clear results
+                        TextAccumlated = AccTags.Count().ToString();
+                        CycleEvents.Clear();
+                        _cycleTags.Clear();
+                        InventoryTagsCount = 0;
+                        TextScanned = InventoryTagsCount.ToString();
+                        CycleEvents.Add(eventTime2.ToString("HH:mm:ss.fff") + ": Disconnected ❌ ");
+                    });
+
                     break;
                 case ConnectState.Listen:
                 case ConnectState.Connecting:
@@ -1911,6 +1928,12 @@ namespace unitechRFIDSample.ViewModels
                     _reader.BaseUHF.AccessResultEvent += OnAccessResult;
 
                     InitUHF();
+
+                    var eventTime1 = DateTime.Now;
+                    Application.Current.Dispatcher.Invoke(() =>
+                    {
+                        CycleEvents.Add(eventTime1.ToString("HH:mm:ss.fff") + ": Connected ✅");
+                    });
                     break;
             }
         }
@@ -1928,7 +1951,7 @@ namespace unitechRFIDSample.ViewModels
 
             if (KeyStatus == KeyState.KeyDown.ToString())
             {
-                //[Timmy] try to ignore this event [To Do]
+                //[Timmy]改到後方
                 //OnInventory();
 
                 //[timmy]trace timing
@@ -1998,8 +2021,22 @@ namespace unitechRFIDSample.ViewModels
             NotifyPropertyChanged(nameof(Result));
         }
 
+        const int AutoStop_Tag_Top_Limit = 3;
         private void OnTagRead(object sender, TagReadEventArgs e)
         {
+            //#region [Timmy] 若已送STOP 則不處理TagRead - 試減少loading
+            //if (!_isOnInventory)
+            //{
+                ////try log
+                //var eventTime = DateTime.Now;
+                //Application.Current.Dispatcher.Invoke(() =>
+                //{
+                //    CycleEvents.Add(eventTime.ToString("HH:mm:ss.fff") + "  OnTagRead ❌");
+                //});
+                //return;
+            //}
+            //#endregion
+
             EPC = e.EPC;
             TID = e.TID;
             RSSI = e.RSSI.ToString();
@@ -2030,17 +2067,17 @@ namespace unitechRFIDSample.ViewModels
                             Application.Current.Dispatcher.Invoke(() =>
                             {
                                 CycleEvents.Add(eventTime.ToString("HH:mm:ss.fff") + ": 🏷️" + InventoryTagsCount + "-" + EPC);
-                                if (InventoryTagsCount > 3)  //[Timmy] 若已得3項, try to Auto Stop 
+                                if (InventoryTagsCount > AutoStop_Tag_Top_Limit)  //[Timmy] 若已得3項, try to Auto Stop 
                                 {
                                     CycleEvents.Add(eventTime.ToString("HH:mm:ss.fff") + ": 強制停止");
                                 }
                             });
-                            if (InventoryTagsCount > 3)  //[Timmy] 若已得3項, 試強制Stop 
+                            if (InventoryTagsCount > AutoStop_Tag_Top_Limit)  //[Timmy] 若已得3項, 試強制Stop 
                             {
                                 OnStop(); //避免長時間無法停下而 當機,
                                 //return;
                             }
-                            //穩態時才顯示在UI
+                            //穩態時才更新顯示在UI
                             NotifyPropertyChanged(nameof(EPC));
                             NotifyPropertyChanged(nameof(TID));
                             NotifyPropertyChanged(nameof(RSSI));
@@ -2462,7 +2499,7 @@ namespace unitechRFIDSample.ViewModels
                     _reader.BaseUHF.TagReadEvent -= OnTagRead;
                     _reader.BaseUHF.AccessResultEvent -= OnAccessResult;
                 }
-
+                
                 _reader.Dispose();
                 _reader = null;
             }
