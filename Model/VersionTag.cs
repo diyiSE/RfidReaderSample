@@ -11,6 +11,6 @@ class VersionTag
     public static string Ver = "1.0.13"; 
 
     //<timmy>DiyiSE自行加的改版
-    public static string Rev = "2026-06-23"; 
+    public static string Rev = "2026-06-24*"; 
 }
 

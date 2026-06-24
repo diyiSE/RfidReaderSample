@@ -346,7 +346,7 @@ namespace unitechRFIDSample.ViewModels
         public ObservableCollection<string> CycleEvents { get; set; } = new ObservableCollection<string>();
         
         //在一次盤點(掃描)流程中找到的Tags - 不直接顯示在UI
-        public HashSet<string> CycleTags { get; set; } = new HashSet<string>();
+        public HashSet<string> _cycleTags = new HashSet<string>();
 
         public List<string> ScanProfiles { get; set; }
         public string SelectedScanProfile { get; set; }
@@ -477,10 +477,12 @@ namespace unitechRFIDSample.ViewModels
             BaudRate.Add(new ItemCollection("921600"));
 
             //<timmy>加入scan profile選項
-            ScanProfiles = new List<string>();
-            ScanProfiles.Add("Middle (中間)");
-            ScanProfiles.Add("Low (較穩但不易掃到)");
-            ScanProfiles.Add("Default Fast (快但不穩)");
+            ScanProfiles = new List<string>()
+            {
+                "Low (較穩但不易掃到)",
+                "Middle (中間)",
+                "Default Fast (快但不穩)",
+            };
             //ScanProfiles = new List<ItemCollection>();
             SelectedScanProfile = ScanProfiles.FirstOrDefault();
             //<>
@@ -646,7 +648,7 @@ namespace unitechRFIDSample.ViewModels
                     InventoryTime = 500,
                     IdleTime = 0
                 };
-                var rfidConfigMiddle = new RFIDConfig()
+                var rfidConfigMiddle = new RFIDConfig() //折中|中庸
                 {
                     ContinuousMode = true,
                     Power = 22,
@@ -685,11 +687,11 @@ namespace unitechRFIDSample.ViewModels
                 Console.WriteLine("" + SelectedScanProfile);
                 switch (SelectedScanProfileIndex)
                 {
-                    case 0: //中間 => 仍再調
-                        _reader.BaseUHF.RFIDConfig = rfidConfigMiddle;
-                        break;
-                    case 1: //慢、穩、不夠強
+                    case 0: //慢、穩、不夠強
                         _reader.BaseUHF.RFIDConfig = rfidConfigSlow;
+                        break;
+                    case 1: //中間 => 仍再調
+                        _reader.BaseUHF.RFIDConfig = rfidConfigMiddle;
                         break;
                     default: //預設, 快速但易當機
                         _reader.BaseUHF.RFIDConfig = rfidConfigDefault;
@@ -720,7 +722,7 @@ namespace unitechRFIDSample.ViewModels
                 AccTags.Clear(); //[Timmy] clear results
                 TextAccumlated = AccTags.Count().ToString();
                 CycleEvents.Clear();
-                CycleTags.Clear();
+                _cycleTags.Clear();
                 InventoryTagsCount = 0;
                 TextScanned = InventoryTagsCount.ToString();
             }
@@ -744,7 +746,7 @@ namespace unitechRFIDSample.ViewModels
                 //mainWindow.TextBlockAccumlated.Text = TextAccumlated;
                 //mainWindow.ButtonClear.Content = "Clear Result " + AccTags.Count().ToString();
                 CycleEvents.Clear();
-                CycleTags.Clear();
+                _cycleTags.Clear();
                 InventoryTagsCount = 0;
                 TextScanned = InventoryTagsCount.ToString();
                 NotifyPropertyChanged(nameof(TextScanned));
@@ -1936,7 +1938,7 @@ namespace unitechRFIDSample.ViewModels
                 {
                     InventoryTagsCount = 0;
                     CycleEvents.Clear();
-                    CycleTags.Clear();
+                    _cycleTags.Clear();
                     CycleEvents.Add(eventTime.ToString("HH:mm:ss.fff") + ": Key壓下 ");
                 });
                 OnInventory(); //[Timmy]改在後方
@@ -2020,12 +2022,10 @@ namespace unitechRFIDSample.ViewModels
                 {
                     //if(mainWindow != null)
                     {
-                        if (!CycleTags.Contains(EPC))
-                        //if (!CycleEvents.Contains(EPC))
+                        if (!_cycleTags.Contains(EPC))
                         {
-                            CycleTags.Add(EPC);
-                            InventoryTagsCount = CycleTags.Count();
-                            //InventoryTagsCount++;
+                            _cycleTags.Add(EPC);
+                            InventoryTagsCount = _cycleTags.Count();                            
                             var eventTime = DateTime.Now;
                             Application.Current.Dispatcher.Invoke(() =>
                             {
@@ -2035,11 +2035,16 @@ namespace unitechRFIDSample.ViewModels
                                     CycleEvents.Add(eventTime.ToString("HH:mm:ss.fff") + ": 強制停止");
                                 }
                             });
-                            if (InventoryTagsCount > 3)  //[Timmy] 若已得3項, try to Auto Stop 
+                            if (InventoryTagsCount > 3)  //[Timmy] 若已得3項, 試強制Stop 
                             {
-                                OnStop(); // 避免長時間無法停下而 當機
+                                OnStop(); //避免長時間無法停下而 當機,
                                 //return;
                             }
+                            //穩態時才顯示在UI
+                            NotifyPropertyChanged(nameof(EPC));
+                            NotifyPropertyChanged(nameof(TID));
+                            NotifyPropertyChanged(nameof(RSSI));
+                            NotifyPropertyChanged(nameof(AntennaID));
                         }
 
                         //Console.WriteLine("count:" + mainWindow.lstTags.Items.Count);
@@ -2077,15 +2082,13 @@ namespace unitechRFIDSample.ViewModels
                              
             }
             #endregion
-            NotifyPropertyChanged(nameof(EPC));
-            NotifyPropertyChanged(nameof(TID));
-            NotifyPropertyChanged(nameof(RSSI));
-            NotifyPropertyChanged(nameof(AntennaID));
 
-            NotifyPropertyChanged(nameof(KeyStatus)); //try
-
-            //<timmy>
-            //NotifyPropertyChanged(nameof(RfidTags));
+            #region 注消[timmy]: 不要立即更新UI - 減少UI thread loading
+            //NotifyPropertyChanged(nameof(EPC));
+            //NotifyPropertyChanged(nameof(TID));
+            //NotifyPropertyChanged(nameof(RSSI));
+            //NotifyPropertyChanged(nameof(AntennaID));
+            #endregion
         }
 
         private void OnProgressRateEvent(object sender, double e)
